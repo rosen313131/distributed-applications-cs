@@ -1,0 +1,163 @@
+﻿@model HotelManagement.Data.PaginatedList<HotelManagement.Models.Room>
+
+@{
+    ViewData["Title"] = "Rooms";
+    var currentType = ViewData["CurrentTypeFilter"] as string;
+    int? currentCapacity = ViewData["CurrentCapacityFilter"] as int?;
+}
+
+<h1>Rooms</h1>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <form asp-action="Index" method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Type contains:</label>
+            <input type="text" name="typeFilter" value="@currentType" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Min capacity:</label>
+            <input type="number" name="capacityFilter" value="@(currentCapacity ?? 0)" class="form-control" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary me-2">Search</button>
+            <a asp-action="Index" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.ActionLink("Number", "Index", new {
+                sortOrder = ViewData["NumberSortParm"],
+                                typeFilter = currentType,
+                                capacityFilter = currentCapacity
+                                })
+            </th>
+            <th>Type</th>
+            <th>
+                @Html.ActionLink("Price", "Index", new {
+                                sortOrder = ViewData["PriceSortParm"],
+                                typeFilter = currentType,
+                                capacityFilter = currentCapacity
+                                })
+            </th>
+            <th>
+                @Html.ActionLink("Capacity", "Index", new {
+                                sortOrder = ViewData["CapacitySortParm"],
+                                typeFilter = currentType,
+                                capacityFilter = currentCapacity
+                                })
+            </th>
+            <th>Wifi</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.RoomNumber</td>
+                <td>@item.Type</td>
+                <td>@item.PricePerNight.ToString("0.00")</td>
+                <td>@item.Capacity</td>
+                <td>@(item.HasWifi ? "Yes" : "No")</td>
+
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+
+                    <!-- Reserve (User & Admin) -->
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        if (User.IsInRole("Admin"))
+                        {
+                            <text>
+                                |
+                                <a class="btn btn-warning btn-sm"
+                                   asp-controller="Reservations"
+                                   asp-action="CreateFromRoomForAdmin"
+                                   asp-route-roomId="@item.Id">
+                                    Reserve (Admin)
+                                </a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                |
+                                <a class="btn btn-primary btn-sm"
+                                   asp-controller="Reservations"
+                                   asp-action="CreateFromRoom"
+                                   asp-route-roomId="@item.Id">
+                                    Reserve
+                                </a>
+                            </text>
+                        }
+                    }
+                    else
+                    {
+                        <text>
+                            |
+                            <a class="btn btn-secondary btn-sm"
+                               asp-controller="Account"
+                               asp-action="Login">
+                                Login to reserve
+                            </a>
+                        </text>
+                    }
+
+                    <!-- Admin Edit/Delete -->
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <text>
+                            |
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        </text>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-typeFilter="@currentType"
+                   asp-route-capacityFilter="@currentCapacity">Previous</a>
+            </li>
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Page @Model.PageIndex of @Model.TotalPages
+                </span>
+            </li>
+
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-typeFilter="@currentType"
+                   asp-route-capacityFilter="@currentCapacity">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-success">Create New Room</a>
+    </p>
+}

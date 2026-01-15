@@ -1,0 +1,130 @@
+﻿@model HotelManagement.Data.PaginatedList<HotelManagement.Models.Guest>
+
+@{
+    ViewData["Title"] = "Guests";
+
+    var query = ViewContext.HttpContext.Request.Query;
+
+    string currentName = query.ContainsKey("searchName")
+        ? query["searchName"].ToString()
+        : string.Empty;
+
+    string currentEmail = query.ContainsKey("searchEmail")
+        ? query["searchEmail"].ToString()
+        : string.Empty;
+}
+
+
+<h1>Guests</h1>
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <form asp-action="Index" method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <label class="form-label">Name contains:</label>
+            <input type="text" name="searchName" value="@currentName" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Email contains:</label>
+            <input type="text" name="searchEmail" value="@currentEmail" class="form-control" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary me-2">Search</button>
+            <a asp-action="Index" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.ActionLink(
+                    "Full Name",
+                    "Index",
+                    new {
+                        sortOrder = ViewData["NameSort"],
+                        searchName = currentName,
+                        searchEmail = currentEmail,
+                        page = Model.PageIndex
+                    })
+            </th>
+            <th>
+                @Html.ActionLink(
+                    "Email",
+                    "Index",
+                    new {
+                        sortOrder = ViewData["EmailSort"],
+                        searchName = currentName,
+                        searchEmail = currentEmail,
+                        page = Model.PageIndex
+                    })
+            </th>
+            <th>Phone</th>
+            <th>Created At</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.FullName</td>
+            <td>@item.Email</td>
+            <td>@item.Phone</td>
+            <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <text> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a></text>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(Model.PageIndex - 1)"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-searchName="@currentName"
+                   asp-route-searchEmail="@currentEmail">
+                    Previous
+                </a>
+            </li>
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Page @Model.PageIndex of @Model.TotalPages
+                </span>
+            </li>
+
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(Model.PageIndex + 1)"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-searchName="@currentName"
+                   asp-route-searchEmail="@currentEmail">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-success">Create New Guest</a>
+    </p>
+}

@@ -1,0 +1,53 @@
+﻿@model HotelManagement.Models.Reservation
+
+@{
+    ViewData["Title"] = "Reserve Room";
+
+    bool isNewGuest = ViewBag.IsNewGuest == true;
+    var roomNumber = ViewBag.RoomNumber;
+}
+
+<h1>Reserve Room</h1>
+
+<form asp-action="CreateFromRoomPost" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <!-- Скрито поле за RoomId (за да знаем коя стая се резервира) -->
+    <input type="hidden" asp-for="RoomId" />
+
+    <!-- Показваме истинския номер на стаята (RoomNumber) -->
+    <div class="mb-3">
+        <label class="form-label">Room Number</label>
+        <input class="form-control" value="@roomNumber" readonly />
+    </div>
+
+    <!-- Ако user няма Guest запис – искаме пълно име -->
+    @if (isNewGuest)
+    {
+        <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input name="FullName" class="form-control" required />
+            <span class="text-danger">Full Name is required because you don't have a Guest profile yet.</span>
+        </div>
+    }
+
+    <div class="mb-3">
+        <label asp-for="CheckInDate" class="form-label"></label>
+        <input asp-for="CheckInDate" type="date" class="form-control" />
+        <span asp-validation-for="CheckInDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CheckOutDate" class="form-label"></label>
+        <input asp-for="CheckOutDate" type="date" class="form-control" />
+        <span asp-validation-for="CheckOutDate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Complete Reservation</button>
+    <a asp-controller="Rooms" asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

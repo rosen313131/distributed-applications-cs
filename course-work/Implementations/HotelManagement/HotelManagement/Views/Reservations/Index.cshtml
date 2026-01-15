@@ -1,0 +1,112 @@
+﻿@using HotelManagement.Data
+@model PaginatedList<HotelManagement.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Reservations";
+
+    var currentGuest = Context.Request.Query["guestName"];
+    var currentRoom = Context.Request.Query["roomNumber"];
+    var currentSort = ViewData["CurrentSort"] as string;
+}
+
+<h1>Reservations</h1>
+
+<form method="get" class="row mb-3">
+    <div class="col-md-4">
+        <input name="guestName" value="@currentGuest" placeholder="Search by guest"
+               class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <input name="roomNumber" value="@currentRoom" placeholder="Room number"
+               class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["DateSortParm"]"
+                   asp-route-guestName="@currentGuest"
+                   asp-route-roomNumber="@currentRoom">
+                    Check-In
+                </a>
+            </th>
+
+            <th>Check-Out</th>
+
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["RoomSortParm"]"
+                   asp-route-guestName="@currentGuest"
+                   asp-route-roomNumber="@currentRoom">
+                    Room
+                </a>
+            </th>
+
+            <th>Guest</th>
+
+            <th>Total Price</th>
+
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["StatusSortParm"]"
+                   asp-route-guestName="@currentGuest"
+                   asp-route-roomNumber="@currentRoom">
+                    Status
+                </a>
+            </th>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <th></th>
+            }
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CheckInDate.ToShortDateString()</td>
+                <td>@item.CheckOutDate.ToShortDateString()</td>
+                <td>@item.Room.RoomNumber</td>
+                <td>@item.Guest.FullName</td>
+                <td>@item.TotalPrice</td>
+                <td>@item.Status</td>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-sortOrder="@currentSort"
+   asp-route-guestName="@currentGuest"
+   asp-route-roomNumber="@currentRoom"
+   class="btn btn-outline-primary @prevDisabled">Previous</a>
+
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-sortOrder="@currentSort"
+   asp-route-guestName="@currentGuest"
+   asp-route-roomNumber="@currentRoom"
+   class="btn btn-outline-primary @nextDisabled">Next</a>

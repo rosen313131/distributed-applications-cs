@@ -1,0 +1,53 @@
+﻿@model HotelManagement.Models.Reservation
+
+@{
+    ViewData["Title"] = "Edit Reservation";
+}
+
+<h1>Edit Reservation</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="CreatedAt" />
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="RoomId"></label>
+        <select asp-for="RoomId" asp-items="ViewBag.RoomId" class="form-control"></select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="GuestId"></label>
+        <select asp-for="GuestId" asp-items="ViewBag.GuestId" class="form-control"></select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CheckInDate"></label>
+        <input asp-for="CheckInDate" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CheckOutDate"></label>
+        <input asp-for="CheckOutDate" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TotalPrice"></label>
+        <input asp-for="TotalPrice" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Status"></label>
+        <input asp-for="Status" class="form-control" />
+    </div>
+
+    <button class="btn btn-success" type="submit">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

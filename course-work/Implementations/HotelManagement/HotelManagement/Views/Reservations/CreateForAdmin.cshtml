@@ -1,0 +1,43 @@
+﻿@model HotelManagement.Models.Reservation
+
+@{
+    ViewData["Title"] = "Reserve Room (Admin)";
+}
+
+<h1>Reserve Room for Guest</h1>
+
+<form asp-action="CreateFromRoomForAdminPost" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <input type="hidden" asp-for="RoomId" />
+
+    <div class="mb-3">
+        <label class="form-label">Room Number</label>
+        <input class="form-control" value="@ViewBag.RoomNumber" disabled />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="GuestId" class="form-label"></label>
+        <select asp-for="GuestId" asp-items="ViewBag.GuestId" class="form-control"></select>
+        <span asp-validation-for="GuestId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CheckInDate"></label>
+        <input asp-for="CheckInDate" class="form-control" type="date" />
+        <span asp-validation-for="CheckInDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CheckOutDate"></label>
+        <input asp-for="CheckOutDate" class="form-control" type="date" />
+        <span asp-validation-for="CheckOutDate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Reserve</button>
+    <a asp-controller="Rooms" asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

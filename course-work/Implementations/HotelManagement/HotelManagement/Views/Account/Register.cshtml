@@ -1,0 +1,109 @@
+﻿@model HotelManagement.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Register</h1>
+
+<form asp-action="Register" method="post">
+    <!-- Identity Errors -->
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <!-- Email -->
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <!-- Password with Eye Icon -->
+    <div class="mb-3 position-relative">
+        <label asp-for="Password" class="form-label"></label>
+        <div class="input-group">
+            <input asp-for="Password" class="form-control" id="passwordInput" />
+            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                👁
+            </button>
+        </div>
+        <span asp-validation-for="Password" class="text-danger"></span>
+
+        <!-- Password Rules -->
+        <div class="mt-2 text-muted" style="font-size: 0.9rem;">
+            Password must contain:
+            <ul>
+                <li>At least 6 characters</li>
+                <li>At least one uppercase letter (A–Z)</li>
+                <li>At least one lowercase letter (a–z)</li>
+                <li>At least one number (0–9)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Confirm Password with Eye Icon -->
+    <div class="mb-3 position-relative">
+        <label asp-for="ConfirmPassword" class="form-label"></label>
+        <div class="input-group">
+            <input asp-for="ConfirmPassword" class="form-control" id="confirmPasswordInput" />
+            <button type="button" class="btn btn-outline-secondary" id="toggleConfirmPassword">
+                👁
+            </button>
+        </div>
+
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+        <span id="confirmErrorMessage" class="text-danger" style="display:none;">
+            Passwords do not match.
+        </span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+@section Scripts {
+    <script>
+        // Toggle Password Visibility
+        document.getElementById("togglePassword").addEventListener("click", function () {
+            var input = document.getElementById("passwordInput");
+            if (input.type === "password") {
+                input.type = "text";
+                this.textContent = "🙈";
+            } else {
+                input.type = "password";
+                this.textContent = "👁";
+            }
+        });
+
+        // Toggle Confirm Password Visibility
+        document.getElementById("toggleConfirmPassword").addEventListener("click", function () {
+            var input = document.getElementById("confirmPasswordInput");
+            if (input.type === "password") {
+                input.type = "text";
+                this.textContent = "🙈";
+            } else {
+                input.type = "password";
+                this.textContent = "👁";
+            }
+        });
+
+        // Validate Password Match (live)
+        const passInput = document.getElementById("passwordInput");
+        const confirmInput = document.getElementById("confirmPasswordInput");
+        const errorLabel = document.getElementById("confirmErrorMessage");
+
+        function validatePasswords() {
+            if (confirmInput.value.length > 0 && passInput.value !== confirmInput.value) {
+                errorLabel.style.display = "block";
+            } else {
+                errorLabel.style.display = "none";
+            }
+        }
+
+        passInput.addEventListener("input", validatePasswords);
+        confirmInput.addEventListener("input", validatePasswords);
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
